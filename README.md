@@ -1,1 +1,1 @@
-# etheris
+# Etheris.io
