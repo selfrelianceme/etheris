@@ -50,29 +50,33 @@ class Etheris implements EtherisInterface
 	}
 
 	function form($payment_id, $sum, $units='ETH'){
-		// $sum = number_format($sum, 2, ".", "");
+		$PassData = new \stdClass();
 
-		// $response = $this->client->request('POST', 'wallet/create_address', [
-		// 	'form_params' => [
-		//         'order_id' => $payment_id,
-		//         'user_fields' => [
-		//         	'hash_pay' => md5($payment_id.Config::get('etheris.secret_key'))
-		//         ]
-		//     ]
-		// ]);
-		// $body     = $response->getBody();
-		// $code     = $response->getStatusCode();
-		// $resp     = json_decode($body->getContents());	
-		// $PassData = new \stdClass();
+		try{
+			$response = $this->client->request('GET', 'wallet/income_payment', [
+				'query' => [
+					'user_fields' => [
+						'payment_id' => $payment_id
+					]
+			    ]
+			]);
+			$body     = $response->getBody();
+			$code     = $response->getStatusCode();
+			$resp     = json_decode($body->getContents());
+		}catch(\GuzzleHttp\Exception\ClientException $e){
+			$PassData->error = $e->getMessage();
+			return PassData;
+		}
 
-		// if($resp->code == 200){
-		// 	$PassData->address = $resp->response->address;
-		// 	$PassData->another_site = false;
-		// }else{
-		// 	$PassData->error = $resp->response->message;
-		// }
+		if($resp->code != 200){
+			$PassData->error = $resp->message;
+			return PassData;
+		}
 
-		// return $PassData;
+		$PassData->address = $resp->address;
+		$PassData->another_site = false;
+
+		return $PassData;
 	}
 
 	public function check_transaction(array $request, array $server, $headers = []){
