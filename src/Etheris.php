@@ -56,7 +56,8 @@ class Etheris implements EtherisInterface
 			$response = $this->client->request('GET', 'wallet/income_payment', [
 				'query' => [
 					'user_fields' => [
-						'payment_id' => $payment_id
+						'payment_id' => $payment_id,
+						'hash_pay'   => md5($payment_id.Config::get('etheris.secret_key'))
 					]
 			    ]
 			]);
@@ -80,7 +81,13 @@ class Etheris implements EtherisInterface
 	}
 
 	public function check_transaction(array $request, array $server, $headers = []){
-		
+		Log::info('Etheris IPN', [
+			'request' => $request,
+			'headers' => $headers,
+			'server'  => array_intersect_key($server, [
+				'PHP_AUTH_USER', 'PHP_AUTH_PW'
+			])
+		]);
 	}
 
 	public function validateIPN(array $post_data, array $server_data){
