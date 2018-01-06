@@ -102,7 +102,7 @@ class Etheris implements EtherisInterface
 				];
 				event(new EtherisPaymentIncome($PassData));
 				echo $request['payment_id']."|success";
-
+				return true;
 			}else{
 				echo $request['payment_id']."|error";	
 			}
@@ -110,9 +110,14 @@ class Etheris implements EtherisInterface
 			Log::error('Etheris IPN', [
 				'message' => $e->getMessage()
 			]);
-			
-			echo $request['payment_id']."|continue";
+			if(isset($request['payment_id'])){
+				echo $request['payment_id']."|continue";
+			}else{
+				echo 'continue';
+			}
 		}
+
+		return false;
 	}
 
 	public function validateIPN(array $post_data, array $server_data){
