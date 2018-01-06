@@ -88,10 +88,48 @@ class Etheris implements EtherisInterface
 				'PHP_AUTH_USER', 'PHP_AUTH_PW'
 			])
 		]);
+
+		try{
+			$is_complete = $this->validateIPN($request, $server);
+			if($is_complete){
+				$PassData                     = new \stdClass();
+				$PassData->amount             = $request['amount_eth'];
+				$PassData->payment_id         = $request['payment_id'];
+				$PassData->transaction        = $request['txid'];
+				$PassData->add_info           = [
+					"address"       => $request['address'],
+					"full_data_ipn" => json_encode($request)
+				];
+				event(new EtherisPaymentIncome($PassData));
+				echo $request['payment_id']."|success";
+
+			}else{
+				echo $request['payment_id']."|error";	
+			}
+		}catch(EtherisException $e){
+			Log::error('Etheris IPN', [
+				'message' => $e->getMessage()
+			]);
+			
+			echo $request['payment_id']."|continue";
+		}
 	}
 
 	public function validateIPN(array $post_data, array $server_data){
-		
+		if(!isset($post_data['payment_id'])){
+			throw new EtherisException("For validate IPN need payment id");
+		}
+
+		if($post_data['amount_eth'] <= 0){
+			throw new EtherisException("Need amount for transaction");	
+		}
+
+		$hash = md5($post_data['payment_id'].Config::get('etheris.secret_key'));
+		if($hash != $post_data['hash_pay']){
+			throw new EtherisException("Hash pay not confirmed");	
+		}
+
+		return true;
 	}
 
 	public function validateIPNRequest(Request $request) {
