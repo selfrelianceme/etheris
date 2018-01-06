@@ -66,12 +66,12 @@ class Etheris implements EtherisInterface
 			$resp     = json_decode($body->getContents());
 		}catch(\GuzzleHttp\Exception\ClientException $e){
 			$PassData->error = $e->getMessage();
-			return PassData;
+			return $PassData;
 		}
 
 		if($resp->code != 200){
 			$PassData->error = $resp->message;
-			return PassData;
+			return $PassData;
 		}
 
 		$PassData->address = $resp->address;
