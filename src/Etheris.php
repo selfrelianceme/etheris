@@ -141,11 +141,7 @@ class Etheris implements EtherisInterface
         return $this->check_transaction($request->all(), $request->server(), $request->headers);
     }
 
-	public function send_money($payment_id, $amount, $address, $currency){
-		if($currency != 'ETH'){
-			throw new \Exception('Only currency ETH');	
-		}
-		
+	public function send_money($payment_id, $amount, $address, $currency){		
 		try{
 			$response = $this->client->request('POST', 'wallet/sendfunds', [
 				'form_params' => [
