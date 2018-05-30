@@ -101,23 +101,22 @@ class Etheris implements EtherisInterface
 					"full_data_ipn" => json_encode($request)
 				];
 				event(new EtherisPaymentIncome($PassData));
-				echo $request['payment_id']."|success";
-				return true;
+				return response($request['payment_id']."|success", 200);
 			}else{
-				echo $request['payment_id']."|error";	
+				return response($request['payment_id']."|error", 200);
 			}
 		}catch(EtherisException $e){
 			Log::error('Etheris IPN', [
 				'message' => $e->getMessage()
 			]);
 			if(isset($request['payment_id'])){
-				echo $request['payment_id']."|continue";
+				return response($request['payment_id']."|continue", 200);
 			}else{
-				echo 'continue';
+				return response('continue', 200);
 			}
 		}
 
-		return false;
+		return response('error', 200);
 	}
 
 	public function validateIPN(array $post_data, array $server_data){
